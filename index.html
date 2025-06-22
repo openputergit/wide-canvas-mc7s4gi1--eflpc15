@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Video Social App</title>
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overscroll-behavior-y: contain;
+        }
+        .video-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        .video-item {
+            scroll-snap-align: start;
+            position: relative;
+            height: 100vh;
+            background: #000;
+        }
+        .video-actions {
+            position: absolute;
+            right: 4px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: white;
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <div class="video-container">
+        <div class="video-item">
+            <video src="https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-1232-large.mp4" class="w-full h-full object-cover" loop></video>
+            <div class="progress-bar"></div>
+            <div class="video-actions">
+                <button class="like-btn bg-transparent p-2 rounded-full">
+                    <i class="bi bi-heart text-3xl"></i>
+                    <p class="text-sm">123k</p>
+                </button>
+                <button class="comment-btn bg-transparent p-2 rounded-full">
+                    <i class="bi bi-chat text-3xl"></i>
+                    <p class="text-sm">1.2k</p>
+                </button>
+                <button class="share-btn bg-transparent p-2 rounded-full">
+                    <i class="bi bi-share text-3xl"></i>
+                    <p class="text-sm">Share</p>
+                </button>
+            </div>
+            <div class="absolute bottom-4 left-4">
+                <p class="text-lg font-bold">@username</p>
+                <p class="text-sm">Video description goes here #trending #viral</p>
+            </div>
+        </div>
+        <!-- More video items would be dynamically added here -->
+    </div>
+
+    <div class="fixed bottom-0 w-full bg-black bg-opacity-50 px-4 py-2">
+        <div class="flex justify-around items-center">
+            <button class="text-center">
+                <i class="bi bi-house-door text-2xl"></i>
+                <p class="text-xs">Home</p>
+            </button>
+            <button class="text-center">
+                <i class="bi bi-search text-2xl"></i>
+                <p class="text-xs">Discover</p>
+            </button>
+            <button class="text-center">
+                <i class="bi bi-plus-square text-2xl"></i>
+                <p class="text-xs">Create</p>
+            </button>
+            <button class="text-center">
+                <i class="bi bi-inbox text-2xl"></i>
+                <p class="text-xs">Inbox</p>
+            </button>
+            <button class="text-center">
+                <i class="bi bi-person text-2xl"></i>
+                <p class="text-xs">Profile</p>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoContainer = document.querySelector('.video-container');
+            const videos = document.querySelectorAll('video');
+            let currentVideo = videos[0];
+            currentVideo.play();
+
+            // Handle scroll snap and video playback
+            videoContainer.addEventListener('scroll', () => {
+                const videoItems = document.querySelectorAll('.video-item');
+                videoItems.forEach((item) => {
+                    const video = item.querySelector('video');
+                    const rect = item.getBoundingClientRect();
+                    
+                    if (rect.top >= 0 && rect.top <= 100) {
+                        video.play();
+                        currentVideo = video;
+                    } else {
+                        video.pause();
+                    }
+                });
+            });
+
+            // Update progress bar
+            setInterval(() => {
+                if (!currentVideo.paused) {
+                    const progress = (currentVideo.currentTime / currentVideo.duration) * 100;
+                    const progressBar = currentVideo.parentElement.querySelector('.progress-bar');
+                    progressBar.style.width = `${progress}%`;
+                }
+            }, 100);
+
+            // Like button functionality
+            const likeButtons = document.querySelectorAll('.like-btn');
+            likeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('.bi-heart');
+                    icon.classList.toggle('text-red-500');
+                });
+            });
+
+            // Double tap to like
+            let lastTap = 0;
+            videoContainer.addEventListener('touchstart', (e) => {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                if (tapLength < 300 && tapLength > 0) {
+                    const video = e.target.closest('.video-item');
+                    if (video) {
+                        const likeBtn = video.querySelector('.like-btn .bi-heart');
+                        likeBtn.classList.add('text-red-500');
+                    }
+                }
+                lastTap = currentTime;
+            });
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
